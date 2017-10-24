@@ -1,10 +1,11 @@
 ---
 title: "Homework 3"
-subtitle: ENVE 681
 author: "Nicola Horscroft"
 date: "October 26, 2017"
-output: html_document
-
+output:
+  html_document: default
+  pdf_document: default
+subtitle: ENVE 681
 ---
 
 ```{r setup, include=FALSE}
@@ -181,7 +182,7 @@ for (j in (inlet_corner_y1 + 1):y_nodes)
 
 trans_rhs[inlet_corner_x1, inlet_corner_y1] = (-R*(del^2)/T) - 20
 trans_rhs[inlet_corner_x2, inlet_corner_y2] = (-R*(del^2)/T) - 20
-# trans_rhs[1, y_nodes] = 10
+
 
 # updating where inlet is
 
@@ -198,23 +199,12 @@ for (i in (inlet_corner_x1):x_inlet_nodes)
 rhs_2 = matrix(trans_rhs, total_nodes, 1)
 
 
-# Creating coefficient matrix
+# Updating coefficient matrix
 #------------------------------------------------------------------------------
 
 coeff_2 <- coeff
 
-# counter to start at correct row/column
-b = y_nodes - y_inlet_nodes + 2
-
 # Modify coefficient matrix for new boundary conditions
-for (j in 1:y_inlet_nodes)
-  {
-  for (i in 1:x_inlet_nodes) 
-    {
-    coeff_2[(x_nodes*(b-j) + i),(x_nodes * (y_nodes - j) + i)] = 0
-    coeff_2[(x_nodes * (y_nodes - j) + i), (x_nodes*(b-j) + i)] = 0
-  }
-}
 
 for (j in 1:y_inlet_nodes)
 {
@@ -223,9 +213,10 @@ for (j in 1:y_inlet_nodes)
     coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i)] = 1
     coeff_2[(x_nodes*(y_nodes-j) + i + 1),(x_nodes*(y_nodes-j) + i)] = 0
     coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i + 1)] = 0
+    coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i - x_nodes)] = 0
+    coeff_2[(x_nodes*(y_nodes-j) + i - x_nodes),(x_nodes*(y_nodes-j) + i)] = 0
   }
 }
-
 
 # Solving for h matrix
 #------------------------------------------------------------------------------
@@ -251,5 +242,6 @@ z_2 = rbind(z_2, j)
 
 plot_ly(z = matrix(z_2 , x_nodes + 2 , y_nodes + 2)) %>%
   add_surface()
+
 ```
 

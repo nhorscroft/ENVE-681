@@ -18,7 +18,7 @@ y_len = 1000
 # del = change in distance along both x and y 
 # (for simplicity the change is the same in both x & y directions)
                                                
-del = 100
+del = 25
 
 # R = recharge in cm/yr
 R = 50
@@ -157,7 +157,7 @@ for (j in (inlet_corner_y1 + 1):y_nodes)
 
 trans_rhs[inlet_corner_x1, inlet_corner_y1] = (-R*(del^2)/T) - 20
 trans_rhs[inlet_corner_x2, inlet_corner_y2] = (-R*(del^2)/T) - 20
-# trans_rhs[1, y_nodes] = 10
+
 
 # updating where inlet is
 
@@ -179,18 +179,7 @@ rhs_2 = matrix(trans_rhs, total_nodes, 1)
 
 coeff_2 <- coeff
 
-# counter to start at correct row/column
-b = y_nodes - y_inlet_nodes + 2
-
 # Modify coefficient matrix for new boundary conditions
-for (j in 1:y_inlet_nodes)
-  {
-  for (i in 1:x_inlet_nodes) 
-    {
-    coeff_2[(x_nodes*(b-j) + i),(x_nodes * (y_nodes - j) + i)] = 0
-    coeff_2[(x_nodes * (y_nodes - j) + i), (x_nodes*(b-j) + i)] = 0
-  }
-}
 
 for (j in 1:y_inlet_nodes)
 {
@@ -199,6 +188,8 @@ for (j in 1:y_inlet_nodes)
     coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i)] = 1
     coeff_2[(x_nodes*(y_nodes-j) + i + 1),(x_nodes*(y_nodes-j) + i)] = 0
     coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i + 1)] = 0
+    coeff_2[(x_nodes*(y_nodes-j) + i),(x_nodes*(y_nodes-j) + i - x_nodes)] = 0
+    coeff_2[(x_nodes*(y_nodes-j) + i - x_nodes),(x_nodes*(y_nodes-j) + i)] = 0
   }
 }
 
