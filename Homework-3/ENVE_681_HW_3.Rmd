@@ -19,11 +19,13 @@ Consider an island surrounded on all sides by water with a mean sea level of 10m
 Create a plot of the hydraulic head profile throughout the island for constant R = 40 cm/year and T = 200 m2/day (although make your program flexible to vary these values). 
 
 
-```{r message = FALSE, warning = FALSE, echo = FALSE}
+```{r library message = FALSE, warning = FALSE, echo = FALSE}
 library(tidyverse)
 library(lubridate)
 library(plotly)
+```
 
+```{r input_variables message = FALSE, warning = FALSE, echo = FALSE}
 # Define input variables
 #------------------------------------------------------------------------------
 
@@ -55,7 +57,9 @@ y_nodes = y_len/del - 1
 
 # total_nodes = total number of nodes in system
 total_nodes = x_nodes * y_nodes
+```
 
+```{r rhs_matrix message = FALSE, warning = FALSE, echo = FALSE}
 
 # Creating answer matrix
 #------------------------------------------------------------------------------
@@ -89,7 +93,9 @@ rhs[corner_1,1] = (-R*(del^2)/T) - 20
 rhs[corner_2,1] = (-R*(del^2)/T) - 20
 rhs[corner_3,1] = (-R*(del^2)/T) - 20
 rhs[corner_4,1] = (-R*(del^2)/T) - 20
+```
 
+```{r coefficient_matrix message = FALSE, warning = FALSE, echo = FALSE}
 
 # Creating coefficient matrix
 #------------------------------------------------------------------------------
@@ -114,7 +120,9 @@ for (i in 1:(y_nodes - 1))
   coeff[(i * x_nodes),(i * x_nodes + 1)] = 0
   coeff[(i * x_nodes + 1),(i * x_nodes)] = 0
 }
+```
 
+```{r solve_h message = FALSE, warning = FALSE, echo = FALSE}
 # Solving for h matrix
 #------------------------------------------------------------------------------
 
@@ -132,7 +140,9 @@ z = cbind(i, z)
 z = cbind(z, i)
 z = rbind(j, z)
 z = rbind(z, j)
+```
 
+```{r graph_matix message = FALSE, warning = FALSE, echo = FALSE}
 # graphing matrix
 #------------------------------------------------------------------------------
 
@@ -145,7 +155,7 @@ plot_ly(z = matrix(z , x_nodes + 2 , y_nodes + 2)) %>%
 
 Next consider that the rectangular island has an inlet extending from the bottom left corner, up diagonally 200 m horizontally and 300 m vertically. This inlet is connected to the surrounding sea level and therefore can be represented with a fixed head value of 10m.
 
-```{r message = FALSE, warning = FALSE, echo = FALSE}
+```{r bonus_inputs message = FALSE, warning = FALSE, echo = FALSE}
 #------------------------------------------------------------------------------
 # BONUS
 #------------------------------------------------------------------------------
@@ -165,7 +175,9 @@ inlet_corner_x1 = x_inlet_nodes - (x_inlet_nodes - 1)
 inlet_corner_y1 = y_nodes - y_inlet_nodes
 inlet_corner_x2 = x_inlet_nodes + 1
 inlet_corner_y2 = y_nodes
+```
 
+```{r bonus_rhs_matrix message = FALSE, warning = FALSE, echo = FALSE}
 # Updating new boundary conditions
 
 for (i in (inlet_corner_x1 + 1):x_inlet_nodes) 
@@ -197,7 +209,9 @@ for (i in (inlet_corner_x1):x_inlet_nodes)
 # making it a single column matrix
 
 rhs_2 = matrix(trans_rhs, total_nodes, 1)
+```
 
+```{r bonus_coefficient_matrix message = FALSE, warning = FALSE, echo = FALSE}
 
 # Updating coefficient matrix
 #------------------------------------------------------------------------------
@@ -217,7 +231,9 @@ for (j in 1:y_inlet_nodes)
     coeff_2[(x_nodes*(y_nodes-j) + i - x_nodes),(x_nodes*(y_nodes-j) + i)] = 0
   }
 }
+```
 
+```{r bonus_solve_h message = FALSE, warning = FALSE, echo = FALSE}
 # Solving for h matrix
 #------------------------------------------------------------------------------
 
@@ -235,7 +251,9 @@ z_2 = cbind(i, z_2)
 z_2 = cbind(z_2, i)
 z_2 = rbind(j, z_2)
 z_2 = rbind(z_2, j)
+```
 
+```{r bonus_graph message = FALSE, warning = FALSE, echo = FALSE}
 
 # graphing matrix
 #------------------------------------------------------------------------------
