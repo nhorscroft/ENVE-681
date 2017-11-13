@@ -1,4 +1,5 @@
 # Homework 3 ------------------
+# Nicola Horscroft
 # 10/23/17
 #------------------------------
 
@@ -118,7 +119,11 @@ z = rbind(z, j)
 #------------------------------------------------------------------------------
 
 plot_ly(z = matrix(z , x_nodes + 2 , y_nodes + 2)) %>%
-  add_surface()
+  add_surface() 
+  # layout(scene(xaxis = list(title = "length"),
+  #        yaxis = list(title = "width"),
+  #        zaxis = list(title = "height of groundwater")),
+  #        title = "Groundwater Mounding on Island")
 
 
 #------------------------------------------------------------------------------
