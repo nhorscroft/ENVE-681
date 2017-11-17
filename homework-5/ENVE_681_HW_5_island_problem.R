@@ -121,11 +121,11 @@ for (i in 1:(y_nodes - 1))
 # Solving for h initial matrix-------------------------------------------------
 
 # define h as matrix for h values of groundwater
-h_initial = solve(coeff,rhs)
+h = solve(coeff,rhs)
 
 
 # Reassemble h into matrix that matches nodes
-z = matrix(h_initial, x_nodes,y_nodes)
+z = matrix(h, x_nodes,y_nodes)
 
 i = matrix(10 , x_nodes, 1)
 j = matrix(10, 1, y_nodes + 2)
@@ -144,38 +144,115 @@ plot_ly(z = matrix(z , x_nodes + 2 , y_nodes + 2)) %>%
 
 # Creating coefficient matrix h & g--------------------------------------------
 
-# h coefficient matrix
-h = diag(total_nodes)* (1 - 2*gamma*r*((1/dx2) + (1/dy2)))
+x_nodes2 = x_nodes + 2
+y_nodes2 = y_nodes + 2
+total_nodes2 = x_nodes2*y_nodes2
 
-diag(h[-1,]) = (r*gamma/dx2)
-diag(h[,-1]) = (r*gamma/dx2)
+# H coefficient matrix
+H = diag(total_nodes2)* (1 - 2*gamma*r*((1/dx2) + (1/dy2)))
 
-diag(h[(x_nodes + 1):total_nodes,]) = (r*gamma/dy2)
-diag(h[,(x_nodes + 1):total_nodes]) = (r*gamma/dy2)
+diag(H[-1,]) = (r*gamma/dx2)
+diag(H[,-1]) = (r*gamma/dx2)
 
-for (i in 1:(y_nodes - 1))
+diag(H[(x_nodes2 + 1):total_nodes2,]) = (r*gamma/dy2)
+diag(H[,(x_nodes2 + 1):total_nodes2]) = (r*gamma/dy2)
+
+for (i in 1:(y_nodes2 - 1))
 {
-  h[(i * x_nodes),(i * x_nodes + 1)] = 0
-  h[(i * x_nodes + 1),(i * x_nodes)] = 0
+  H[(i * x_nodes2),(i * x_nodes2 + 1)] = 0
+  H[(i * x_nodes2 + 1),(i * x_nodes2)] = 0
+}
+
+# Adding in boundary conditions to matrix
+for (i in 1:(x_nodes2 + 1))
+{
+  H[i,i] = 1
+  H[i+1, i] = 0
+  H[i + x_nodes2, i] = 0
+  H[i, i+1] = 0
+  H[i, i+x_nodes2] = 0
+  
+}
+
+for (i in (total_nodes2):(total_nodes2-x_nodes2))
+{
+  H[i,i] = 1
+  H[i-1, i] = 0
+  H[i - x_nodes2, i] = 0
+  H[i, i-1] = 0
+  H[i, i-x_nodes2] = 0
+}
+
+for (i in 1:(y_nodes2 - 2))
+{
+  H[i*x_nodes2, i*x_nodes2] = 1
+  H[(i*x_nodes2) + 1, i * x_nodes2] = 0
+  H[(i*x_nodes2)+x_nodes2, i * x_nodes2] = 0
+  H[i * x_nodes2, (i * x_nodes2) + 1] = 0
+  H[i * x_nodes2, (i * x_nodes2) + x_nodes2] = 0
+  
+  H[(i*x_nodes2) + 1, (i*x_nodes2) + 1] = 1
+  H[(i*x_nodes2) + 2, (i * x_nodes2) + 1] = 0
+  H[((i*x_nodes2)) + 1 + x_nodes2, (i * x_nodes2) + 1] = 0
+  H[(i * x_nodes2) + 1, (i * x_nodes2) + 2] = 0
+  H[(i * x_nodes2) + 1, (i * x_nodes2) + 1 + x_nodes2] = 0
 }
 
 # g coefficient matrix
 
-g = diag(total_nodes)* (1 + 2*r*gamma*((1/dx2) + (1/dy2)))
+g = diag(total_nodes2)* (1 + 2*r*gamma*((1/dx2) + (1/dy2)))
 
 diag(g[-1,]) = (-r*gamma/dx2)
 diag(g[,-1]) = (-r*gamma/dx2)
 
-diag(g[(x_nodes + 1):total_nodes,]) = (-r*gamma/dy2)
-diag(g[,(x_nodes + 1):total_nodes]) = (-r*gamma/dy2)
+diag(g[(x_nodes2 + 1):total_nodes2,]) = (-r*gamma/dy2)
+diag(g[,(x_nodes2 + 1):total_nodes2]) = (-r*gamma/dy2)
 
-for (i in 1:(y_nodes - 1))
+for (i in 1:(y_nodes2 - 1))
 {
-  g[(i * x_nodes),(i * x_nodes + 1)] = 0
-  g[(i * x_nodes + 1),(i * x_nodes)] = 0
+  g[(i * x_nodes2),(i * x_nodes2 + 1)] = 0
+  g[(i * x_nodes2 + 1),(i * x_nodes2)] = 0
 }
 
+# Adding in boundary conditions to matrix
+for (i in 1:(x_nodes2 + 1))
+{
+  g[i,i] = 1
+  g[i+1, i] = 0
+  g[i + x_nodes2, i] = 0
+  g[i, i+1] = 0
+  g[i, i+x_nodes2] = 0
+  
+}
+
+for (i in (total_nodes2):(total_nodes2-x_nodes2))
+{
+  g[i,i] = 1
+  g[i-1, i] = 0
+  g[i - x_nodes2, i] = 0
+  g[i, i-1] = 0
+  g[i, i-x_nodes2] = 0
+}
+
+for (i in 1:(y_nodes2 - 2))
+{
+  g[i*x_nodes2, i*x_nodes2] = 1
+  g[(i*x_nodes2)+1, i * x_nodes2] = 0
+  g[(i*x_nodes2)+x_nodes2, i * x_nodes2] = 0
+  g[i * x_nodes2, (i * x_nodes2) + 1] = 0
+  g[i * x_nodes2, (i * x_nodes2) + x_nodes2] = 0
+  
+  g[(i*x_nodes2) + 1, (i*x_nodes2) + 1] = 1
+  g[(i*x_nodes2) + 2, (i * x_nodes2) + 1] = 0
+  g[((i*x_nodes2)) + 1 + x_nodes2, (i * x_nodes2) + 1] = 0
+  g[(i * x_nodes2) + 1, (i * x_nodes2) + 2] = 0
+  g[(i * x_nodes2) + 1, (i * x_nodes2) + 1 + x_nodes2] = 0
+}
+
+
 # Inital h_old and hh before loop----------------------------------------------
+
+h_initial = matrix(z, total_nodes2, 1)
 
 h_old = h_initial
 
@@ -185,29 +262,18 @@ hh = h_initial
 
 for (i in seq(1, n, by = dn))
 {
-  h_new = solve(g, h%*%h_old)
+  h_new = solve(g, H%*%h_old)
   hh = cbind(hh,h_new)
   h_old = h_new
 }
 
-z1 = matrix(hh[,2], x_nodes,y_nodes)
+z1 = matrix(hh[,2], x_nodes2,y_nodes2)
 
-i = matrix(10 , x_nodes, 1)
-j = matrix(10, 1, y_nodes + 2)
 
-z1 = cbind(i, z1)
-z1 = cbind(z1, i)
-z1 = rbind(j, z1)
-z1 = rbind(z1, j)
-
-plot_ly(z = matrix(z1 , x_nodes + 2 , y_nodes + 2)) %>%
+plot_ly(z = matrix(z1 , x_nodes2 , y_nodes2)) %>%
   add_surface()
 
-z5 = matrix(hh[,6], x_nodes,y_nodes)
-z5 = cbind(i, z5)
-z5 = cbind(z5, i)
-z5 = rbind(j, z5)
-z5 = rbind(z5, j)
+z5 = matrix(hh[,6], x_nodes2,y_nodes2)
 
-plot_ly(z = matrix(z5 , x_nodes + 2 , y_nodes + 2)) %>%
+plot_ly(z = matrix(z5 , x_nodes2, y_nodes2)) %>%
   add_surface()
